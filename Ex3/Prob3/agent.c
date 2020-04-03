@@ -68,9 +68,10 @@ int main(int argc, char const *argv[])
     while (1)
     {
         if (sigaction(SIGHUP, &a, NULL) == -1)
-        {
-            perror("SIGACTION");
-        }
+            perror("SIGACTION--SIGHUP");
+
+        if (sigaction(SIGTERM, &a, NULL) == -1)
+            perror("SIGACTION--SIGTERM");
 
         pause();
     }
@@ -102,5 +103,11 @@ void handler(int signum)
             printf("-----------------------------\n");
             fclose(textptr);
         }
+    }
+
+    if (signum == SIGTERM)
+    {
+        printf("Process terminating...\n");
+        exit(0); /*Normal exit status*/
     }
 }
