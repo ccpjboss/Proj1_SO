@@ -25,11 +25,13 @@ int main(int argc, char const *argv[])
 {
     pid_t myPID;
     myPID = getpid();
+    char buf[255];
 
     FILE *agentptr; /*Pointer to "agent.pid" file*/
     if ((agentptr = fopen("agent.pid", "w")) == NULL)
     {
         printf("File could not be oppened!\n");
+        perror("AGENT.PID\n");
         exit(1);
     }
     else
@@ -39,8 +41,24 @@ int main(int argc, char const *argv[])
         fclose(agentptr);
     }
 
-    while (1)
+    FILE *textptr;
+    if ((textptr = fopen("text.in", "r")) == NULL)
     {
+        printf("Couldn't open the file.\n");
+        perror("TEXT.IN");
+        exit(1);
+    }
+    else
+    {
+        printf("Reading the 'text.in' file...\n");
+        printf("-----------------------------\n");
+        /* while not end of file */
+        while (fgets(buf, 255, textptr))
+        {
+            printf("%s", buf);
+        }
+        printf("-----------------------------\n");
+        fclose(textptr);
     }
 
     return 0;
