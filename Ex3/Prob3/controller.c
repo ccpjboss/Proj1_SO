@@ -34,10 +34,20 @@ int main(int argc, char const *argv[])
     }
     else
     {
-        
         fscanf(agentptr, "%d", &pid);
-        printf("PID: %d\n",pid);
+        printf("PID: %d\n", pid);
         fclose(agentptr); /* fclose closes the file */
+    }
+
+    if (kill(pid, 0) == -1)
+    {
+        printf("Error: no agent found...\n");
+        perror("NO AGENT!\n");
+        exit(1);
+    }
+    else
+    {
+        printf("Agent found with PID: %d \n", pid);
     }
 
     return 0;
