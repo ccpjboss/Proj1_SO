@@ -7,9 +7,9 @@
  * * SIGTERM -> Process terminates... and exit.
  * 
  * ! CONTROLLER
- * TODO: 1-> Checks for runnig agent by fetching the PID from "agent.pid".
- * TODO: 2-> If it cannot find agent --> prints("Error: no agent found.") and exits otherwise prints("Agent found.")
- * TODO: 3-> Signal menu: 
+ * 1-> Checks for runnig agent by fetching the PID from "agent.pid".
+ * 2-> If it cannot find agent --> prints("Error: no agent found.") and exits otherwise prints("Agent found.")
+ * 3-> Signal menu: 
  *                 * Choose a signal to send [1: HUP; 15: TERM]:
  * ! SIGTERM also terminates the controller
  * ! If the user presses Crtl+C the controller should send a SIGTERM to agent and exits
@@ -21,10 +21,15 @@
 #include <stdlib.h>
 #include <stdio.h> /*Files*/
 
+void handler(int signum);
+pid_t pid;
+
 int main(int argc, char const *argv[])
 {
-    pid_t pid;
+    int opc;
     FILE *agentptr;
+    struct sigaction a;
+    a.sa_handler = handler;
 
     if ((agentptr = fopen("agent.pid", "r")) == NULL) /*Open in writing mode*/
     {
@@ -50,5 +55,57 @@ int main(int argc, char const *argv[])
         printf("Agent found with PID: %d \n", pid);
     }
 
+    if (sigaction(SIGINT, &a, NULL) == -1)
+        perror("SIGACTION--SIGINT");
+
+    while (1)
+    {
+        printf("Choose a signal to send [1: HUP; 15: TERM]: \n");
+        scanf("%d", &opc);
+
+        switch (opc)
+        {
+        case 1:
+            printf("Sending a SIGHUP signal to agent...\n");
+            if (kill(pid, 1) == -1)
+            {
+                perror("Sending SIGHUP \n");
+                exit(1);
+            }
+
+            break;
+
+        case 15:
+            printf("Sending a SIGTERM signal to agent...\n");
+            if (kill(pid, 15) == -1)
+            {
+                perror("Sending SIGTERM \n");
+                exit(1);
+            }
+            printf("Terminating...\n");
+            exit(0);
+            break;
+
+        default:
+            printf("Option not valid...\n");
+            break;
+        }
+    }
+
     return 0;
+}
+
+void handler(int signum)
+{
+    if (signum == SIGINT)
+    {
+        printf("\nSIGINT received...\n");
+        if (kill(pid, 15) == -1)
+        {
+            perror("Sending SIGTERM \n");
+            exit(1);
+        }
+        printf("Terminating...\n");
+        exit(0);
+    }
 }
