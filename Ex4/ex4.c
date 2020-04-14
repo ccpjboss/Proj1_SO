@@ -27,10 +27,8 @@ int main(int argc, char const *argv[])
     }
 
     printf("Writing to 'filetable.bin'...\n");
-    for (int i = 0; i < 10; i++) /* Write the table to the file in binary mode */
-    {
-        write(file_fd, &table[i], sizeof(int)); /* Writes 4 bytes at a time */
-    }
+
+    write(file_fd, &table, sizeof(table)); /* Writes the whole array */
 
     close(file_fd); /* Closes the file */
 
