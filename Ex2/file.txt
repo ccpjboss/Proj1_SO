@@ -1,0 +1,4 @@
+  662897      0 -rw-rw-rw-   1 ccpjboss ccpjboss        0 Apr 14 19:47 ./file.txt
+  660696      4 -rw-r--r--   1 ccpjboss ccpjboss        4 Apr 14 19:44 ./myfile2.txt
+  660708      4 -rw-r--r--   1 ccpjboss ccpjboss     3449 Apr 14 19:46 ./ex2.c
+  662911     20 -rwxr-xr-x   1 ccpjboss ccpjboss    17088 Apr 14 19:46 ./ex2

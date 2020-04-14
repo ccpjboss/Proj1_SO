@@ -1,7 +1,7 @@
-  524628      0 -r-xr-x---   1 ccpjboss ccpjboss        0 Apr  8 14:19 ./myfile.txt
+  524628      0 -r-xr-x---   1 ccpjboss ccpjboss        0 Apr 14 19:47 ./myfile.txt
   524623      4 -rw-r--r--   1 ccpjboss ccpjboss     2170 Mar 28 15:27 ./exemplo.c
   524650      4 -rw-r--r--   1 ccpjboss ccpjboss     2902 Mar 28 15:27 ./twopipes.c
-  524641      4 -rw-r--r--   1 ccpjboss ccpjboss     3634 Apr  8 14:19 ./ex1.c
+  524641      8 -rw-r--r--   1 ccpjboss ccpjboss     5933 Apr  8 16:35 ./ex1.c
   524656     20 -rwxr-xr-x   1 ccpjboss ccpjboss    16968 Mar 28 15:27 ./twopipes
   524599     20 -rwxr-xr-x   1 ccpjboss ccpjboss    17360 Mar 28 15:27 ./exemplo
   524353     20 -rwxr-xr-x   1 ccpjboss ccpjboss    17392 Mar 28 15:46 ./ex1
