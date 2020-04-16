@@ -2,7 +2,7 @@
  * C program that emulates the following shell command line:
  * find . -type f -ls | cut -c 2- | sort -n -k 7 >file.txt; less <file.txt
  * The first pipeline is implemented using a unix type socket;
- * The second pipeline is implemented using a pipe;
+ * The second pipeline is implemented using a named pipe;
  */
 
 #include <stdio.h>
@@ -30,12 +30,13 @@ int main(void)
     char *sort_args[] = {"sort", "-n", "-k", "7", NULL};
     char *less_args[] = {"less", NULL};
 
-    struct sockaddr_un saun, fsaun;
+    struct sockaddr_un local, remote; /* Socket names */
+
     pid_t cpid;
 
-    char *myfifo = "/tmp/myfifo";
+    char *myfifo = "/tmp/myfifo"; /* Path to named pipe */
 
-    mkfifo(myfifo, 0666);
+    mkfifo(myfifo, 0666); /* Creation of the named pipe with permissions */
 
     file_fd = open("file.txt", O_CREAT | O_TRUNC | O_WRONLY);
     if (file_fd < 0)
@@ -54,13 +55,13 @@ int main(void)
             exit(1);
         }
 
-        saun.sun_family = AF_UNIX;      /* Make the socket type UNIX */
-        strcpy(saun.sun_path, ADDRESS); /* Copies ADDRESS to saun.sun_path */
+        local.sun_family = AF_UNIX;      /* Make the socket type UNIX */
+        strcpy(local.sun_path, ADDRESS); /* Copies ADDRESS to local.sun_path */
+        unlink(local.sun_path);
 
-        unlink(ADDRESS);
-        len = sizeof(saun.sun_family) + strlen(saun.sun_path); /* Length of local address to bind to socket */
+        len = sizeof(local.sun_family) + strlen(local.sun_path); /* Length of local address to bind to socket */
 
-        if (bind(s, &saun, len) < 0) /* Binds the socket to local address */
+        if (bind(s, (struct sockaddr *)&local, len) < 0) /* Binds the socket to local address */
         {
             perror("server: bind");
             exit(1);
@@ -72,7 +73,9 @@ int main(void)
             exit(1);
         }
 
-        if ((ns = accept(s, &fsaun, &fromlen)) < 0)
+        fromlen = sizeof(remote);
+
+        if ((ns = accept(s, (struct sockaddr *)&remote, &fromlen)) < 0) /* Accepts the connections */
         {
             perror("server: accept");
             exit(1);
@@ -80,8 +83,8 @@ int main(void)
 
         dup2(ns, STDOUT_FILENO); /* Duplicates the new socket file descriptor to the STDOUT file descriptor table*/
 
-        close(s); /* Close the socket*/
-
+        close(s);                        /* Close the socket*/
+        close(ns);                       /* Close the new socket */
         execvp(find_args[0], find_args); /* Execution of the find . -type f -ls */
     }
     else
@@ -91,7 +94,7 @@ int main(void)
         if (cpid == 0)
         {
             /* CHILD 2 */
-            fifo_fd = open(myfifo, O_WRONLY);
+            fifo_fd = open(myfifo, O_WRONLY); /* Opens the named pipe in writing mode to write the result of the shell command */
 
             if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) /* Socket creation */
             {
@@ -99,15 +102,13 @@ int main(void)
                 exit(1);
             }
 
-            saun.sun_family = AF_UNIX;      /* Make the socket type UNIX */
-            strcpy(saun.sun_path, ADDRESS); /* Copies ADDRESS to saun.sun_path */
+            remote.sun_family = AF_UNIX;      /* Make the socket type UNIX */
+            strcpy(remote.sun_path, ADDRESS); /* Copies ADDRESS to remote.sun_path */
 
-            len = sizeof(saun.sun_family) + strlen(saun.sun_path); /* Length of local address to bind to socket */
+            len = sizeof(remote.sun_family) + strlen(remote.sun_path); /* Length of local address to bind to socket */
 
-            while (connect(s, &saun, len) < 0)
-            {
-                //perror("client: connect");
-            }
+            while (connect(s, (struct sockaddr *)&remote, len) < 0)
+                ; /* Connects to the remote address */
 
             dup2(s, STDIN_FILENO);        /* Duplicates the socket file descriptor to the STDIN file descriptor table */
             dup2(fifo_fd, STDOUT_FILENO); /* Duplicates the named pipe file descriptor to the STDOUT file descriptor table */
@@ -130,8 +131,8 @@ int main(void)
                 /* With this dup2 the result get printed to the "myfile.txt" */
                 dup2(file_fd, STDOUT_FILENO); /* Duplicates the "myfile.txt" file descriptor to the STDOUT file descriptor table */
 
-                close(fifo_fd);
-                close(file_fd);
+                close(fifo_fd); /* Closes the named pipe */
+                close(file_fd); /* Closes the file */
                 execvp(sort_args[0], sort_args); /* Execution of the sort -n -k 7 */
             }
         }

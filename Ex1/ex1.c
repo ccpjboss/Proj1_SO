@@ -30,7 +30,7 @@ int main(void)
     char *sort_args[] = {"sort", "-n", "-k", "7", NULL};
     char *less_args[] = {"less", NULL};
 
-    struct sockaddr_un saun, fsaun;
+    struct sockaddr_un local, remote;
 
     pid_t cpid;
 
@@ -53,25 +53,27 @@ int main(void)
             exit(1);
         }
 
-        saun.sun_family = AF_UNIX;      /* Make the socket type UNIX */
-        strcpy(saun.sun_path, ADDRESS); /* Copies ADDRESS to saun.sun_path */
+        local.sun_family = AF_UNIX;      /* Make the socket type UNIX */
+        strcpy(local.sun_path, ADDRESS); /* Copies ADDRESS to local.sun_path */
+        unlink(local.sun_path);
 
-        unlink(ADDRESS);
-        len = sizeof(saun.sun_family) + strlen(saun.sun_path); /* Length of local address to bind to socket */
+        len = sizeof(local.sun_family) + strlen(local.sun_path); /* Length of local address to bind to socket */
 
-        if (bind(s, &saun, len) < 0) /* Binds the socket to local address */
+        if (bind(s, (struct sockaddr *)&local, len) == -1) /* Binds the socket to local address */
         {
             perror("server: bind");
             exit(1);
         }
 
-        if (listen(s, 5) < 0) /* Prepares to accept incoming connections */
+        if (listen(s, 5) == -1) /* Prepares to accept incoming connections */
         {
             perror("server: listen");
             exit(1);
         }
 
-        if ((ns = accept(s, &fsaun, &fromlen)) < 0)
+        fromlen=sizeof(remote);
+
+        if ((ns = accept(s, (struct sockaddr *)&remote, &fromlen)) < 0)
         {
             perror("server: accept");
             exit(1);
@@ -80,6 +82,7 @@ int main(void)
         dup2(ns, STDOUT_FILENO); /* Duplicates the new socket file descriptor to the STDOUT file descriptor table*/
 
         close(s);          /* Close the socket*/
+        close(ns);
         close(pipe_fd[0]); /* Close the pipe reading end */
         close(pipe_fd[1]); /* Close the pipe writing end */
 
@@ -98,15 +101,12 @@ int main(void)
                 exit(1);
             }
 
-            saun.sun_family = AF_UNIX;      /* Make the socket type UNIX */
-            strcpy(saun.sun_path, ADDRESS); /* Copies ADDRESS to saun.sun_path */
+            remote.sun_family = AF_UNIX;      /* Make the socket type UNIX */
+            strcpy(remote.sun_path, ADDRESS); /* Copies ADDRESS to remote.sun_path */
 
-            len = sizeof(saun.sun_family) + strlen(saun.sun_path); /* Length of local address to bind to socket */
+            len = sizeof(remote.sun_family) + strlen(remote.sun_path); /* Length of local address to bind to socket */
 
-            while (connect(s, &saun, len) < 0)
-            {
-                //perror("client: connect");
-            }
+            while (connect(s, (struct sockaddr *)&remote, len) < 0); /* Force it to connect */
 
             dup2(s, STDIN_FILENO);           /* Duplicates the socket file descriptor to the STDIN file descriptor table */
             dup2(pipe_fd[1], STDOUT_FILENO); /* Duplicates the pipe (writing end) file descriptor to the STDOUT file descriptor table */
