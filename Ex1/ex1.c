@@ -19,7 +19,7 @@
 
 #define ADDRESS "mysocket"
 
-int main(void)
+int main(int argc, char *argv[])
 {
     int pipe_fd[2], file_fd, file_fd2;
     int status, i, fromlen;

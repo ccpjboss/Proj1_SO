@@ -1,6 +1,3 @@
-  662897      0 -rw-rw-rw-   1 ccpjboss ccpjboss        0 Apr 16 15:04 ./file.txt
-  660696      4 -rw-r--r--   1 ccpjboss ccpjboss        4 Apr 14 19:44 ./myfile2.txt
-  660708      4 -rw-r--r--   1 ccpjboss ccpjboss     3449 Apr 14 19:46 ./ex2.c
-  656304      8 -rw-r--r--   1 ccpjboss ccpjboss     5883 Apr 16 15:04 ./ex2_2.c
-  662911     20 -rwxr-xr-x   1 ccpjboss ccpjboss    17088 Apr 14 19:46 ./ex2
-  659943     20 -rwxr-xr-x   1 ccpjboss ccpjboss    17400 Apr 16 15:04 ./ex22
+  662897      0 -rw-rw-rw-   1 ccpjboss ccpjboss        0 Apr 17 17:44 ./file.txt
+  656304      8 -rw-r--r--   1 ccpjboss ccpjboss     6147 Apr 17 17:44 ./ex2.c
+  659924     20 -rwxr-xr-x   1 ccpjboss ccpjboss    17400 Apr 17 17:44 ./ex2
